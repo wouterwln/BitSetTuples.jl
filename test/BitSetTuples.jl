@@ -6,7 +6,7 @@ using BitSetTuples
 import BitSetTuples: contents, complete!
 
 @testset "BitSetTuple" begin
-   
+
 end
 
 end
