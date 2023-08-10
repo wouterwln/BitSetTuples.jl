@@ -21,6 +21,13 @@ BitSetTuple(labels::NTuple{N,T}) where {N,T} =
 contents(c::BitSetTuple{N} where {N}) = c.contents
 Base.intersect!(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} =
     intersect!.(contents(left), contents(right))
+Base.intersect(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} =
+    BitSetTuple(intersect.(contents(left), contents(right)))
+Base.union!(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} =
+    BitSetTuple(union!.(contents(left), contents(right)))
+Base.union(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} =
+    BitSetTuple(union.(contents(left), contents(right)))
+
 Base.:(==)(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} =
     contents(left) == contents(right)
 

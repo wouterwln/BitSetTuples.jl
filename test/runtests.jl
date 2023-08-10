@@ -27,6 +27,42 @@ using Test
         @test left == right
     end
 
+
+    # Test intersect function
+    @testset "intersect" begin
+        b1 = BitSetTuple(3)
+        b2 = BitSetTuple([[1, 2, 3], [4], [4]])
+        b3 = intersect(b1, b2)
+        @test contents(b3) == (BitSet([1, 2, 3]), BitSet(), BitSet())
+    end
+
+    # Test union! function
+    @testset "union!" begin
+        b1 = BitSetTuple(3)
+        b2 = BitSetTuple([[1, 2, 3], [4], [4]])
+        union!(b1, b2)
+        @test contents(b1) ==
+              (BitSet([1, 2, 3]), BitSet([1, 2, 3, 4]), BitSet([1, 2, 3, 4]))
+    end
+
+    # Test union function
+    @testset "union" begin
+        b1 = BitSetTuple(3)
+        b2 = BitSetTuple([[1, 2, 3], [4], [4]])
+        b3 = union(b1, b2)
+        @test contents(b3) ==
+              (BitSet([1, 2, 3]), BitSet([1, 2, 3, 4]), BitSet([1, 2, 3, 4]))
+    end
+
+    # Test == operator
+    @testset "== operator" begin
+        b1 = BitSetTuple(3)
+        b2 = BitSetTuple(3)
+        b3 = BitSetTuple(4)
+        @test b1 == b2
+        @test !(b1 == b3)
+    end
+
     @testset "complete!" begin
         c = BitSetTuple([Int64[], Int64[], Int64[], [2], Int64[], Int64[], [3], [1]])
         complete!(c, 4)
