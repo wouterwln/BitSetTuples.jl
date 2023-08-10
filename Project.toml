@@ -1,7 +1,7 @@
 name = "BitSetTuples"
 uuid = "0f2f92aa-23a3-4d05-b791-88071d064721"
 authors = ["Wouter Nuijten"]
-version = "1.0.0-DEV"
+version = "1.0.0"
 
 [deps]
 TupleTools = "9d95972d-f1c8-5527-a6e0-b4b365fa01f6"
