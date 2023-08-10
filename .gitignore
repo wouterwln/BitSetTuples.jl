@@ -1,1 +1,4 @@
 /Manifest.toml
+scripts/Manifest.toml
+
+benchmark/tune.json
