@@ -9,6 +9,8 @@ using Test
         end
         @test contents(BitSetTuple([[1], [2], [3]])) ==
               Tuple([BitSet(1), BitSet(2), BitSet(3)])
+
+        @test BitSetTuple(((1, 2, 3), (1, 2, 3), (1, 2, 3))) == BitSetTuple(3)
     end
 
     @testset "intersect!" begin
