@@ -25,7 +25,6 @@ for i in (5, 10, 50, 100)
 end
 
 for i in (5, 10, 50, 100)
-    SUITE["complete_$i"] = @benchmarkable get_membership_sets(tup, $i) setup = begin
-        tup = BitSetTuple(collect(Tuple(unique(rand(1:$i, rand(1:$i)))) for _ in 1:$i))
-    end
+    tup = BitSetTuple(collect(Tuple(unique(rand(1:i, rand(1:i)))) for _ in 1:i))
+    SUITE["complete_$i"] = @benchmarkable get_membership_sets($tup, $i) 
 end
