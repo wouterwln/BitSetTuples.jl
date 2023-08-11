@@ -26,5 +26,5 @@ end
 
 for i in (5, 10, 50, 100)
     tup = BitSetTuple(collect(Tuple(unique(rand(1:i, rand(1:i)))) for _ in 1:i))
-    SUITE["complete_$i"] = @benchmarkable get_membership_sets($tup, $i) 
+    SUITE["get_membership_sets_$i"] = @benchmarkable get_membership_sets($tup, $i) 
 end
