@@ -12,17 +12,20 @@ for i in (2, 5, 10, 100)
 end
 
 for i in (5, 10, 50, 100)
-    left = BitSetTuple(collect(Tuple(unique(rand(1:i, rand(1:i)))) for _ in 1:i))
-    right = BitSetTuple(collect(Tuple(unique(rand(1:i, rand(1:i)))) for _ in 1:i))
-    SUITE["intersect_$i"] = @benchmarkable intersect!(l, r) setup=(l = deepcopy($left); r = deepcopy($right)) evals=1
+    SUITE["intersect_$i"] = @benchmarkable intersect!(l, r) setup = begin
+        l = BitSetTuple(collect(Tuple(unique(rand(1:i, rand(1:i)))) for _ in 1:i))
+        r = BitSetTuple(collect(Tuple(unique(rand(1:i, rand(1:i)))) for _ in 1:i))
+    end evals=1
 end
 
 for i in (5, 10, 50, 100)
-    tuple = BitSetTuple(collect(Tuple(unique(rand(1:i, rand(1:i)))) for _ in 1:i))
-    SUITE["complete_$i"] = @benchmarkable complete!(tup, $i) setup=(tup = deepcopy($tuple)) evals=1
+    SUITE["complete_$i"] = @benchmarkable complete!(tup, $i) setup=begin
+        tup = BitSetTuple(collect(Tuple(unique(rand(1:i, rand(1:i)))) for _ in 1:i))
+    end evals=1
 end
 
 for i in (5, 10, 50, 100)
-    tup = BitSetTuple(collect(Tuple(unique(rand(1:i, rand(1:i)))) for _ in 1:i))
-    SUITE["complete_$i"] = @benchmarkable get_membership_sets($tup, $i)
+    SUITE["complete_$i"] = @benchmarkable get_membership_sets(tup, $i) setup = begin
+        tup = BitSetTuple(collect(Tuple(unique(rand(1:i, rand(1:i)))) for _ in 1:i))
+    end
 end
