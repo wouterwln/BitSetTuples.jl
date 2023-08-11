@@ -18,6 +18,13 @@ BitSetTuple(labels::NTuple{N,T}) where {N,T} =
     BitSetTuple(ntuple((i) -> BitSet(labels[i]), StaticLength(N)))
 
 
+Base.length(c::BitSetTuple{N})  where {N} = N
+
+Base.iterate(c::BitSetTuple{N} where {N}) = iterate(c.contents)
+Base.iterate(c::BitSetTuple{N} where {N}, state) = iterate(c.contents, state)
+
+Base.getindex(c::BitSetTuple{N} where {N}, i::Int) = c.contents[i]
+
 contents(c::BitSetTuple{N} where {N}) = c.contents
 Base.intersect!(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} =
     intersect!.(contents(left), contents(right))

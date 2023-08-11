@@ -13,6 +13,30 @@ using Test
         @test BitSetTuple(((1, 2, 3), (1, 2, 3), (1, 2, 3))) == BitSetTuple(3)
     end
 
+    @testset "iterator" begin
+        for i = 1:10
+            @test collect(BitSetTuple(i)) == [BitSet(1:i) for _ = 1:i]
+        end
+        @test collect(BitSetTuple([[1], [2], [3]])) ==
+              [BitSet(1), BitSet(2), BitSet(3)]
+    end
+
+    @testset "length" begin
+        for i = 1:10
+            @test length(BitSetTuple(i)) == i
+        end
+        @test length(BitSetTuple([[1], [2], [3]])) == 3
+    end
+
+    @testset "getindex" begin
+        for i = 1:10
+            @test getindex(BitSetTuple(i), i) == BitSet(1:i)
+        end
+        @test getindex(BitSetTuple([[1], [2], [3]]), 1) == BitSet(1)
+        @test getindex(BitSetTuple([[1], [2], [3]]), 2) == BitSet(2)
+        @test getindex(BitSetTuple([[1], [2], [3]]), 3) == BitSet(3)
+    end
+
     @testset "intersect!" begin
         left = BitSetTuple(4)
         right = BitSetTuple(4)
