@@ -64,7 +64,7 @@ function get_membership_sets(tuple::BitSetTuple, max_element::Int)
     bitsets = contents(tuple)
     result = map(
         node -> union(bitsets[findall(node .∈ bitsets)]...),
-        1:max_element,
+        ntuple((i) -> i, StaticLength(max_element)),
     )
     return BitSetTuple(result)
 end
