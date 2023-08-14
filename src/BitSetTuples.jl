@@ -18,7 +18,7 @@ BitSetTuple(labels::NTuple{N,T}) where {N,T} =
     BitSetTuple(ntuple((i) -> BitSet(labels[i]), StaticLength(N)))
 
 
-Base.length(c::BitSetTuple{N})  where {N} = N
+Base.length(c::BitSetTuple{N}) where {N} = N
 
 Base.iterate(c::BitSetTuple{N} where {N}) = iterate(c.contents)
 Base.iterate(c::BitSetTuple{N} where {N}, state) = iterate(c.contents, state)

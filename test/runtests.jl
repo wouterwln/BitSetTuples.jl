@@ -17,8 +17,7 @@ using Test
         for i = 1:10
             @test collect(BitSetTuple(i)) == [BitSet(1:i) for _ = 1:i]
         end
-        @test collect(BitSetTuple([[1], [2], [3]])) ==
-              [BitSet(1), BitSet(2), BitSet(3)]
+        @test collect(BitSetTuple([[1], [2], [3]])) == [BitSet(1), BitSet(2), BitSet(3)]
     end
 
     @testset "length" begin
