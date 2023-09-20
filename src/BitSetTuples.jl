@@ -18,7 +18,7 @@ BitSetTuple(labels::NTuple{N,T}) where {N,T} =
     BitSetTuple(ntuple((i) -> BitSet(labels[i]), StaticLength(N)))
 
 
-Base.length(c::BitSetTuple{N})  where {N} = N
+Base.length(c::BitSetTuple{N}) where {N} = N
 
 Base.iterate(c::BitSetTuple{N} where {N}) = iterate(c.contents)
 Base.iterate(c::BitSetTuple{N} where {N}, state) = iterate(c.contents, state)
@@ -56,7 +56,7 @@ end
 
 
 """
-    convert_to_constraint(constraint::BitSetTuple, max_element::Int)
+    get_membership_sets(constraint::BitSetTuple, max_element::Int)
 
 Checks all elements from 1 to max_element and returns a BitSetTuple where each element is a BitSet containing all the groups that contain that element.
 """
