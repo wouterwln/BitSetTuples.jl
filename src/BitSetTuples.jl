@@ -26,8 +26,10 @@ Base.iterate(c::BitSetTuple{N} where {N}, state) = iterate(c.contents, state)
 Base.getindex(c::BitSetTuple{N} where {N}, i::Int) = c.contents[i]
 
 contents(c::BitSetTuple{N} where {N}) = c.contents
-Base.intersect!(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} =
+Base.intersect!(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} = begin
     intersect!.(contents(left), contents(right))
+    return left
+end
 Base.intersect(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} =
     BitSetTuple(intersect.(contents(left), contents(right)))
 Base.union!(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} =

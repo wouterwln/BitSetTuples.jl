@@ -41,6 +41,7 @@ using Test
         right = BitSetTuple(4)
         intersect!(left, right)
         @test left == BitSetTuple(4)
+        @test intersect!(left, right) === left
 
         left = BitSetTuple(3)
         right = BitSetTuple(4)
@@ -50,6 +51,7 @@ using Test
         right = BitSetTuple([collect(1:i) for i = 1:4])
         intersect!(left, right)
         @test left == right
+        @test intersect!(left, right) === left
     end
 
 
