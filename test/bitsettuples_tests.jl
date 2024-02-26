@@ -95,6 +95,7 @@
         @test !is_valid_partition(BitSetTuple([[1, 2], [2], [3]]))
         @test !is_valid_partition(BitSetTuple([[1], [2, 3], [3]]))
         @test is_valid_partition(BitSetTuple([[1, 2], [1, 2], [3]]))
+        @test !is_valid_partition(BitSetTuple([[1, 2], [4]]))
     end
 end
 
@@ -114,10 +115,26 @@ end
         end
     end
 
+    @testset "size" begin
+        for i = 1:10
+            @test size(BoundedBitSetTuple(i)) == (i, i)
+        end
+    end
+
     @testset "getindex" begin
         for i = 1:10
             @test getindex(BoundedBitSetTuple(i), i) == BitVector(ones(Bool, i))
             @test getindex(BoundedBitSetTuple(i), i, i) == true
+        end
+    end
+
+    @testset "setindex!" begin
+        for i = 1:10
+            b = BoundedBitSetTuple(i)
+            setindex!(b, false, i, i)
+            @test getindex(b, i, i) == false
+            setindex!(b, true, i, i)
+            @test getindex(b, i, i) == true
         end
     end
 
