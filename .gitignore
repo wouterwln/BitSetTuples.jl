@@ -3,3 +3,5 @@ scripts/Manifest.toml
 test/Manifest.toml
 
 benchmark/tune.json
+
+*.md
