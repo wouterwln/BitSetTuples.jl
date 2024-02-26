@@ -1,6 +1,6 @@
 module BitSetTuples
 
-export BitSetTuple, complete!, get_membership_sets
+export BitSetTuple, BoundedBitSetTuple, contents, is_valid_partition
 
 using TupleTools
 import TupleTools: ntuple, StaticLength
@@ -14,8 +14,9 @@ BitSetTuple(::Val{N}) where {N} = BitSetTuple(ntuple((_) -> BitSet(1:N), StaticL
 BitSetTuple(N::Int) = BitSetTuple(Val(N))
 BitSetTuple(labels::AbstractArray) =
     BitSetTuple(ntuple((i) -> BitSet(labels[i]), StaticLength(length(labels))))
-BitSetTuple(labels::NTuple{N,T}) where {N,T} =
+BitSetTuple(labels::NTuple{N,T} where {T}) where {N} =
     BitSetTuple(ntuple((i) -> BitSet(labels[i]), StaticLength(N)))
+contents(c::BitSetTuple{N} where {N}) = c.contents
 
 
 Base.length(c::BitSetTuple{N}) where {N} = N
@@ -25,7 +26,6 @@ Base.iterate(c::BitSetTuple{N} where {N}, state) = iterate(c.contents, state)
 
 Base.getindex(c::BitSetTuple{N} where {N}, i::Int) = c.contents[i]
 
-contents(c::BitSetTuple{N} where {N}) = c.contents
 Base.intersect!(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} = begin
     intersect!.(contents(left), contents(right))
     return left
@@ -40,36 +40,57 @@ Base.union(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} =
 Base.:(==)(left::BitSetTuple{N}, right::BitSetTuple{N}) where {N} =
     contents(left) == contents(right)
 
-
-"""
-    complete!(tuple::BitSetTuple, max_element::Int)
-
-Makes sure all elements from 1 up to `max_element` are included in at least one `BitSet`. 
-If an element does not occur in any of the `BitSet`s, it is added to all of them.
-"""
-function complete!(tuple::BitSetTuple, max_element::Int)
-    bitsets = contents(tuple)
-    for node = 1:max_element
-        if !any(node .∈ bitsets)    #If a variable does not occur in any group
-            Base.push!.(bitsets, node)   #Add it to all groups
+function is_valid_partition(set::BitSetTuple{N}) where {N}
+    c = unique(contents(set))
+    if reduce(union, c) != BitSet(1:N)
+        return false
+    end
+    for i = 1:N
+        if sum(x -> i ∈ x, c) > 1
+            return false
         end
     end
+    return true
 end
 
 
-"""
-    get_membership_sets(constraint::BitSetTuple, max_element::Int)
-
-Checks all elements from 1 to max_element and returns a BitSetTuple where each element is a BitSet containing all the groups that contain that element.
-"""
-function get_membership_sets(tuple::BitSetTuple, max_element::Int)
-    bitsets = contents(tuple)
-    result = map(
-        node -> union(bitsets[findall(node .∈ bitsets)]...),
-        ntuple((i) -> i, StaticLength(max_element)),
-    )
-    return BitSetTuple(result)
+struct BoundedBitSetTuple
+    contents::BitMatrix
 end
 
+BoundedBitSetTuple(N::Int) = BoundedBitSetTuple(ones(Bool, N, N))
+contents(set::BoundedBitSetTuple) = set.contents
+
+Base.size(set::BoundedBitSetTuple) = size(contents(set))
+Base.size(set::BoundedBitSetTuple, i::Int) = size(contents(set), i)
+Base.length(set::BoundedBitSetTuple) = size(set, 1)
+
+Base.delete!(set::BoundedBitSetTuple, i::Int, j::Int) = set.contents[i, j] = false
+Base.insert!(set::BoundedBitSetTuple, i::Int, j::Int) = set.contents[i, j] = true
+
+Base.getindex(set::BoundedBitSetTuple, i::Int) = contents(set)[i, :]
+Base.getindex(set::BoundedBitSetTuple, i::Int, j::Int) = contents(set)[i, j]
+
+Base.setindex!(set::BoundedBitSetTuple, value, i::Int, j::Int) = set.contents[i, j] = value
+
+Base.intersect(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
+    BoundedBitSetTuple(contents(left) .& contents(right))
+Base.union(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
+    BoundedBitSetTuple(contents(left) .| contents(right))
+
+Base.intersect!(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
+    BoundedBitSetTuple(left.contents .&= contents(right))
+Base.union!(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
+    BoundedBitSetTuple(left.contents .|= contents(right))
+
+Base.:(==)(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
+    contents(left) == contents(right)
+
+
+function is_valid_partition(set::BoundedBitSetTuple)
+    s = unique(eachcol(contents(set)))
+    result = reduce((x, y) -> xor.(x, y), s)
+    return all(result)
+end
 
 end

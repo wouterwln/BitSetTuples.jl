@@ -10,7 +10,5 @@ lint: scripts_init ## Code formating check
 format: scripts_init ## Code formating run
 	julia --startup-file=no --project=scripts/ scripts/format.jl --overwrite
 
-
-BRANCH = "main"
 bench: 
 	julia --startup-file=no --project=. scripts/bench.jl $(BRANCH)
