@@ -106,9 +106,10 @@ end
     @testset "constructor" begin
         for i = 1:10
             @test BoundedBitSetTuple(rand, i, 10) isa BoundedBitSetTuple
-            @test BoundedBitSetTuple(UndefInitializer(), i, i) isa BoundedBitSetTuple 
+            @test BoundedBitSetTuple(UndefInitializer(), i, i) isa BoundedBitSetTuple
             @test BoundedBitSetTuple(UndefInitializer(), i) isa BoundedBitSetTuple
-            @test @inferred BoundedBitSetTuple(zeros, i, i + 1) == BoundedBitSetTuple(BitMatrix(zeros(Bool, (i, i + 1))))
+            @test @inferred BoundedBitSetTuple(zeros, i, i + 1) ==
+                            BoundedBitSetTuple(BitMatrix(zeros(Bool, (i, i + 1))))
             @test @inferred BoundedBitSetTuple(i) == BoundedBitSetTuple(ones, i)
             @test @inferred BoundedBitSetTuple(i) == BoundedBitSetTuple(ones, i, i)
         end

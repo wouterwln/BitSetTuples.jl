@@ -60,7 +60,8 @@ end
 
 
 BoundedBitSetTuple(init, N::Int, M::Int) = BoundedBitSetTuple(init(Bool, (N, M)))
-BoundedBitSetTuple(::UndefInitializer, N::Int, M::Int) = BoundedBitSetTuple(BitMatrix(UndefInitializer(), (N, M)))
+BoundedBitSetTuple(::UndefInitializer, N::Int, M::Int) =
+    BoundedBitSetTuple(BitMatrix(UndefInitializer(), (N, M)))
 BoundedBitSetTuple(init, N::Int) = BoundedBitSetTuple(init, N, N)
 BoundedBitSetTuple(N::Int) = BoundedBitSetTuple(ones, N)
 
@@ -77,7 +78,17 @@ end
 __contents(set::BoundedBitSetTuple) = set.contents
 
 function contents(set::BoundedBitSetTuple)
-    Tuple(map(col -> Tuple(filter(elem -> elem != 0, map(elem -> elem[2] == 1 ? elem[1] : 0, enumerate(col)))), eachcol(__contents(set))))
+    Tuple(
+        map(
+            col -> Tuple(
+                filter(
+                    elem -> elem != 0,
+                    map(elem -> elem[2] == 1 ? elem[1] : 0, enumerate(col)),
+                ),
+            ),
+            eachcol(__contents(set)),
+        ),
+    )
 end
 
 Base.size(set::BoundedBitSetTuple) = size(__contents(set))
@@ -110,7 +121,7 @@ function is_valid_partition(set::BoundedBitSetTuple)
     cols = eachcol(__contents(set))
     result = first(cols)
     hashes = Set(hash(result))
-    for i in 2:length(cols)
+    for i = 2:length(cols)
         if hash(cols[i]) ∉ hashes
             push!(hashes, hash(cols[i]))
             result .⊻= cols[i]
