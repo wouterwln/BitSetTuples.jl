@@ -109,7 +109,7 @@ Base.:(==)(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
 function is_valid_partition(set::BoundedBitSetTuple)
     cols = eachcol(__contents(set))
     result = first(cols)
-    hashes = [hash(result)]
+    hashes = Set(hash(result))
     for i in 2:length(cols)
         if hash(cols[i]) ∉ hashes
             push!(hashes, hash(cols[i]))
