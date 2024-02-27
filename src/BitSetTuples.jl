@@ -2,7 +2,7 @@ module BitSetTuples
 
 export BitSetTuple, BoundedBitSetTuple, contents, tupled_contents, is_valid_partition
 
-using TupleTools
+using TupleTools, Memoization
 import TupleTools: ntuple, StaticLength
 
 struct BitSetTuple{N}
@@ -121,9 +121,9 @@ Base.:(==)(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
     contents(left) == contents(right)
 
 
-function is_valid_partition(set::BoundedBitSetTuple)
+@memoize function is_valid_partition(set::BoundedBitSetTuple)
     cols = eachcol(contents(set))
-    result = first(cols)
+    result = copy(first(cols))
     hashes = Set(hash(result))
     for i = 2:length(cols)
         if hash(cols[i]) ∉ hashes
