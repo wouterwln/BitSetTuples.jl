@@ -114,6 +114,12 @@ end
         end
     end
 
+    @testset "contents" begin
+        for i = 1:10
+            @test contents(BoundedBitSetTuple(i)) == Tuple.(contents(BitSetTuple(i)))
+        end
+    end
+
     @testset "length" begin
         for i = 1:10
             @test length(BoundedBitSetTuple(i)) == i
@@ -214,5 +220,6 @@ end
         @test is_valid_partition(BoundedBitSetTuple(4))
         @test is_valid_partition(BoundedBitSetTuple(BitMatrix(Bool[1 1 0; 1 1 0; 0 0 1])))
         @test !is_valid_partition(BoundedBitSetTuple(BitMatrix(Bool[1 1 0; 1 1 0; 0 1 1])))
+        @test !is_valid_partition(BoundedBitSetTuple(BitMatrix(Bool[1 1 0; 1 1 0; 0 0 0])))
     end
 end
