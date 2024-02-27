@@ -101,11 +101,16 @@ end
 
 @testitem "BoundedBitSetTuple" begin
     using BitSetTuples
-    import BitSetTuples: contents
+    import BitSetTuples: __contents
 
     @testset "constructor" begin
         for i = 1:10
-            @test contents(BoundedBitSetTuple(i)) == BitMatrix(ones(Bool, (i, i)))
+            @test BoundedBitSetTuple(rand, i, 10) isa BoundedBitSetTuple
+            @test BoundedBitSetTuple(UndefInitializer(), i, i) isa BoundedBitSetTuple 
+            @test BoundedBitSetTuple(UndefInitializer(), i) isa BoundedBitSetTuple
+            @test @inferred BoundedBitSetTuple(zeros, i, i + 1) == BoundedBitSetTuple(BitMatrix(zeros(Bool, (i, i + 1))))
+            @test @inferred BoundedBitSetTuple(i) == BoundedBitSetTuple(ones, i)
+            @test @inferred BoundedBitSetTuple(i) == BoundedBitSetTuple(ones, i, i)
         end
     end
 
@@ -170,7 +175,7 @@ end
             delete!(b2, i, j)
         end
         b3 = intersect(b1, b2)
-        @test contents(b3) == BitMatrix(Bool[0 1 1; 1 0 0; 1 1 0])
+        @test __contents(b3) == BitMatrix(Bool[0 1 1; 1 0 0; 1 1 0])
     end
 
     # Test union! function
@@ -180,7 +185,7 @@ end
         b2 = BoundedBitSetTuple(zeros(Bool, (3, 3)))
         insert!(b2, 2, 3)
         union!(b1, b2)
-        @test sum(contents(b1)) === 2
+        @test sum(__contents(b1)) === 2
         @test b1[1, 1] && b1[2, 3]
     end
 
@@ -191,7 +196,7 @@ end
         b2 = BoundedBitSetTuple(zeros(Bool, (3, 3)))
         insert!(b2, 2, 3)
         b3 = union(b1, b2)
-        @test sum(contents(b3)) === 2
+        @test sum(__contents(b3)) === 2
         @test b3[1, 1] && b3[2, 3]
     end
 

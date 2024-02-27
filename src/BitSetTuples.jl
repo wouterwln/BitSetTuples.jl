@@ -58,37 +58,45 @@ struct BoundedBitSetTuple
     contents::BitMatrix
 end
 
-BoundedBitSetTuple(N::Int) = BoundedBitSetTuple(ones(Bool, N, N))
-contents(set::BoundedBitSetTuple) = set.contents
 
-Base.size(set::BoundedBitSetTuple) = size(contents(set))
-Base.size(set::BoundedBitSetTuple, i::Int) = size(contents(set), i)
+BoundedBitSetTuple(init, N::Int, M::Int) = BoundedBitSetTuple(init(Bool, (N, M)))
+BoundedBitSetTuple(::UndefInitializer, N::Int, M::Int) = BoundedBitSetTuple(BitMatrix(UndefInitializer(), (N, M)))
+BoundedBitSetTuple(init, N::Int) = BoundedBitSetTuple(init, N, N)
+BoundedBitSetTuple(N::Int) = BoundedBitSetTuple(ones, N)
+__contents(set::BoundedBitSetTuple) = set.contents
+
+function contents(set::BoundedBitSetTuple)
+    BitSetTuple(map(col -> filter(elem -> elem != 0, map(elem -> elem[2] == 1 ? elem[1] : 0, enumerate(col))), eachcol(__contents(set))))
+end
+
+Base.size(set::BoundedBitSetTuple) = size(__contents(set))
+Base.size(set::BoundedBitSetTuple, i::Int) = size(__contents(set), i)
 Base.length(set::BoundedBitSetTuple) = size(set, 1)
 
 Base.delete!(set::BoundedBitSetTuple, i::Int, j::Int) = set.contents[i, j] = false
 Base.insert!(set::BoundedBitSetTuple, i::Int, j::Int) = set.contents[i, j] = true
 
-Base.getindex(set::BoundedBitSetTuple, i::Int) = contents(set)[i, :]
-Base.getindex(set::BoundedBitSetTuple, i::Int, j::Int) = contents(set)[i, j]
+Base.getindex(set::BoundedBitSetTuple, i::Int) = __contents(set)[i, :]
+Base.getindex(set::BoundedBitSetTuple, i::Int, j::Int) = __contents(set)[i, j]
 
 Base.setindex!(set::BoundedBitSetTuple, value, i::Int, j::Int) = set.contents[i, j] = value
 
 Base.intersect(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
-    BoundedBitSetTuple(contents(left) .& contents(right))
+    BoundedBitSetTuple(__contents(left) .& __contents(right))
 Base.union(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
-    BoundedBitSetTuple(contents(left) .| contents(right))
+    BoundedBitSetTuple(__contents(left) .| __contents(right))
 
 Base.intersect!(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
-    BoundedBitSetTuple(left.contents .&= contents(right))
+    BoundedBitSetTuple(left.contents .&= __contents(right))
 Base.union!(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
-    BoundedBitSetTuple(left.contents .|= contents(right))
+    BoundedBitSetTuple(left.contents .|= __contents(right))
 
 Base.:(==)(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
-    contents(left) == contents(right)
+    __contents(left) == __contents(right)
 
 
 function is_valid_partition(set::BoundedBitSetTuple)
-    s = unique(eachcol(contents(set)))
+    s = unique(eachcol(__contents(set)))
     result = reduce((x, y) -> xor.(x, y), s)
     return all(result)
 end

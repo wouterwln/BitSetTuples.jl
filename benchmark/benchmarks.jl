@@ -11,6 +11,12 @@ for i in (2, 5, 10, 100, 1000)
     SUITE["constructor_$i"] = @benchmarkable BitSetTuple($i)
 end
 
+for i in (2, 5, 10, 100, 1000)
+    SUITE["contents $i"] = @benchmarkable contents(tup) setup = begin
+        tup = BitSetTuple(collect(Tuple(unique(rand(1:$i, rand(1:$i)))) for _ in 1:$i))
+    end evals=1
+end
+
 for i in (5, 10, 50, 100, 1000)
     SUITE["intersect!_$i"] = @benchmarkable intersect!(l, r) setup = begin
         l = BitSetTuple(collect(Tuple(unique(rand(1:$i, rand(1:$i)))) for _ in 1:$i))
@@ -45,6 +51,12 @@ end
 
 for i in (5, 10, 50, 100, 1000)
     SUITE["bounded_constructor_$i"] = @benchmarkable BoundedBitSetTuple($i)
+end
+
+for i in (5, 10, 50, 100, 1000)
+    SUITE["bounded_contents_$i"] = @benchmarkable contents(tup) setup = begin
+        tup = BoundedBitSetTuple(rand, $i, $i)
+    end
 end
 
 for i in (5, 10, 50, 100, 1000)
