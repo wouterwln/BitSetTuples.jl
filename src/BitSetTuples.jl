@@ -1,6 +1,6 @@
 module BitSetTuples
 
-export BitSetTuple, BoundedBitSetTuple, contents, is_valid_partition
+export BitSetTuple, BoundedBitSetTuple, contents, tupled_contents, is_valid_partition
 
 using TupleTools
 import TupleTools: ntuple, StaticLength
@@ -16,8 +16,9 @@ BitSetTuple(labels::AbstractArray) =
     BitSetTuple(ntuple((i) -> BitSet(labels[i]), StaticLength(length(labels))))
 BitSetTuple(labels::NTuple{N,T} where {T}) where {N} =
     BitSetTuple(ntuple((i) -> BitSet(labels[i]), StaticLength(N)))
+    
 contents(c::BitSetTuple{N} where {N}) = c.contents
-
+tupled_contents(c::BitSetTuple{N} where {N}) = Tuple.(c.contents)
 
 Base.length(c::BitSetTuple{N}) where {N} = N
 
@@ -65,19 +66,20 @@ BoundedBitSetTuple(::UndefInitializer, N::Int, M::Int) =
 BoundedBitSetTuple(init, N::Int) = BoundedBitSetTuple(init, N, N)
 BoundedBitSetTuple(N::Int) = BoundedBitSetTuple(ones, N)
 
-function BoundedBitSetTuple(labels::NTuple{N,T} where {T}) where {N}
-    result = BoundedBitSetTuple(zeros, N)
-    for i = 1:N
+function BoundedBitSetTuple(labels::Tuple)
+    size = maximum(maximum.(labels))
+    result = BoundedBitSetTuple(zeros, length(labels), maximum(maximum.(labels)))
+    for i = 1:length(labels)
         for j in labels[i]
-            insert!(result, i, j)
+            insert!(result, j, i)
         end
     end
     return result
 end
 
-__contents(set::BoundedBitSetTuple) = set.contents
+contents(set::BoundedBitSetTuple) = set.contents
 
-function contents(set::BoundedBitSetTuple)
+function tupled_contents(set::BoundedBitSetTuple)
     Tuple(
         map(
             col -> Tuple(
@@ -86,39 +88,41 @@ function contents(set::BoundedBitSetTuple)
                     map(elem -> elem[2] == 1 ? elem[1] : 0, enumerate(col)),
                 ),
             ),
-            eachcol(__contents(set)),
+            eachcol(contents(set)),
         ),
     )
 end
 
-Base.size(set::BoundedBitSetTuple) = size(__contents(set))
-Base.size(set::BoundedBitSetTuple, i::Int) = size(__contents(set), i)
+Base.size(set::BoundedBitSetTuple) = size(contents(set))
+Base.size(set::BoundedBitSetTuple, i::Int) = size(contents(set), i)
 Base.length(set::BoundedBitSetTuple) = size(set, 1)
 
 Base.delete!(set::BoundedBitSetTuple, i::Int, j::Int) = set.contents[i, j] = false
 Base.insert!(set::BoundedBitSetTuple, i::Int, j::Int) = set.contents[i, j] = true
 
-Base.getindex(set::BoundedBitSetTuple, i::Int) = __contents(set)[i, :]
-Base.getindex(set::BoundedBitSetTuple, i::Int, j::Int) = __contents(set)[i, j]
+Base.getindex(set::BoundedBitSetTuple, i::Int) = contents(set)[i, :]
+Base.getindex(set::BoundedBitSetTuple, i::Int, j::Int) = contents(set)[i, j]
 
 Base.setindex!(set::BoundedBitSetTuple, value, i::Int, j::Int) = set.contents[i, j] = value
+Base.setindex!(set::BoundedBitSetTuple, value, i::Int, ::Colon) = set.contents[i, :] .= value
+Base.setindex!(set::BoundedBitSetTuple, value, ::Colon, j::Int) = set.contents[:, j] .= value
 
 Base.intersect(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
-    BoundedBitSetTuple(__contents(left) .& __contents(right))
+    BoundedBitSetTuple(contents(left) .& contents(right))
 Base.union(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
-    BoundedBitSetTuple(__contents(left) .| __contents(right))
+    BoundedBitSetTuple(contents(left) .| contents(right))
 
 Base.intersect!(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
-    BoundedBitSetTuple(left.contents .&= __contents(right))
+    BoundedBitSetTuple(left.contents .&= contents(right))
 Base.union!(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
-    BoundedBitSetTuple(left.contents .|= __contents(right))
+    BoundedBitSetTuple(left.contents .|= contents(right))
 
 Base.:(==)(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
-    __contents(left) == __contents(right)
+    contents(left) == contents(right)
 
 
 function is_valid_partition(set::BoundedBitSetTuple)
-    cols = eachcol(__contents(set))
+    cols = eachcol(contents(set))
     result = first(cols)
     hashes = Set(hash(result))
     for i = 2:length(cols)

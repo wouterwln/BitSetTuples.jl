@@ -101,7 +101,7 @@ end
 
 @testitem "BoundedBitSetTuple" begin
     using BitSetTuples
-    import BitSetTuples: __contents
+    import BitSetTuples: contents
 
     @testset "constructor" begin
         for i = 1:10
@@ -117,7 +117,7 @@ end
 
     @testset "contents" begin
         for i = 1:10
-            @test contents(BoundedBitSetTuple(i)) == Tuple.(contents(BitSetTuple(i)))
+            @test tupled_contents(BoundedBitSetTuple(i)) == tupled_contents(BitSetTuple(i))
         end
     end
 
@@ -182,7 +182,7 @@ end
             delete!(b2, i, j)
         end
         b3 = intersect(b1, b2)
-        @test __contents(b3) == BitMatrix(Bool[0 1 1; 1 0 0; 1 1 0])
+        @test contents(b3) == BitMatrix(Bool[0 1 1; 1 0 0; 1 1 0])
     end
 
     # Test union! function
@@ -192,7 +192,7 @@ end
         b2 = BoundedBitSetTuple(zeros(Bool, (3, 3)))
         insert!(b2, 2, 3)
         union!(b1, b2)
-        @test sum(__contents(b1)) === 2
+        @test sum(contents(b1)) === 2
         @test b1[1, 1] && b1[2, 3]
     end
 
@@ -203,7 +203,7 @@ end
         b2 = BoundedBitSetTuple(zeros(Bool, (3, 3)))
         insert!(b2, 2, 3)
         b3 = union(b1, b2)
-        @test sum(__contents(b3)) === 2
+        @test sum(contents(b3)) === 2
         @test b3[1, 1] && b3[2, 3]
     end
 
@@ -222,5 +222,6 @@ end
         @test is_valid_partition(BoundedBitSetTuple(BitMatrix(Bool[1 1 0; 1 1 0; 0 0 1])))
         @test !is_valid_partition(BoundedBitSetTuple(BitMatrix(Bool[1 1 0; 1 1 0; 0 1 1])))
         @test !is_valid_partition(BoundedBitSetTuple(BitMatrix(Bool[1 1 0; 1 1 0; 0 0 0])))
+        @test !is_valid_partition(BoundedBitSetTuple(((1,), (1,), (3,))))
     end
 end
