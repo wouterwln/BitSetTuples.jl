@@ -121,7 +121,7 @@ Base.:(==)(left::BoundedBitSetTuple, right::BoundedBitSetTuple) =
     contents(left) == contents(right)
 
 
-@memoize function is_valid_partition(set::BoundedBitSetTuple)
+function is_valid_partition(set::BoundedBitSetTuple)
     cols = eachcol(contents(set))
     result = copy(first(cols))
     hashes = Set(hash(result))
