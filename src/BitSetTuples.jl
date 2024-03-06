@@ -2,7 +2,7 @@ module BitSetTuples
 
 export BitSetTuple, BoundedBitSetTuple, contents, tupled_contents, is_valid_partition
 
-using TupleTools, Memoization
+using TupleTools
 import TupleTools: ntuple, StaticLength
 
 struct BitSetTuple{N}
